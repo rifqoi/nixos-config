@@ -3,7 +3,7 @@
   services.openssh = {
     enable = true;
     settings = {
-      passwordAuthentication = false;
+      PasswordAuthentication = false;
     };
   };
 
@@ -37,7 +37,11 @@
     wget
     neovim
     git
+    tcpdump
+    inetutils
+    host
     curl
+    tmux
   ];
 
   ############ USERS ############

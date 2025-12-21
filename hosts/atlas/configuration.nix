@@ -33,9 +33,6 @@
   networking.hostId = "6b53000e";
 
   networking = {
-    wireless = {
-      enable = true;
-    };
     networkmanager = {
       enable = true;
     };
