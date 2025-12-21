@@ -5,12 +5,16 @@
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
+
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     self,
     nixpkgs,
     disko,
+    sops-nix,
     ...
   }: let
     lib = nixpkgs.lib;
@@ -29,8 +33,9 @@
         system = "x86_64-linux";
         modules = [
           disko.nixosModules.disko
-          ./hosts/atlas/disko.nix
+          sops-nix.nixosModules.sops
           ./hosts/atlas/configuration.nix
+          ./hosts/atlas/disko.nix
         ];
       };
     };

@@ -1,0 +1,9 @@
+keys:
+  - &age_rifqoi age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+  - &age_atlas age15yej26pkuhn7te4tkql2qpmh38x270vvc824x3ktd6sh99ufp4mqr8tflz
+creation_rules:
+  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *age_rifqoi
+          - *age_atlas
