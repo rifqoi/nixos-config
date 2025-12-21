@@ -10,6 +10,8 @@
     ./hardware-configuration.nix
     ../common.nix
     ../../modules/networking/tailscale.nix
+    ../../modules/monitoring/prometheus.nix
+    ../../modules/monitoring/grafana.nix
     # (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
@@ -39,6 +41,11 @@
       enable = true;
       wifi.powersave = false;
     };
+  };
+
+  features.monitoring = {
+    prometheus.enable = true;
+    grafana.enable = true;
   };
 
   programs = {

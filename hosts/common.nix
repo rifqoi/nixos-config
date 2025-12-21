@@ -1,4 +1,12 @@
 {pkgs, ...}: {
+  imports = [
+    ../modules/monitoring/node-exporter.nix
+  ];
+  ############ FEATURES ############
+  features.monitoring.nodeExporter = {
+    enable = true;
+  };
+
   ############ SERVICES ############
   services.openssh = {
     enable = true;
