@@ -28,6 +28,22 @@
     autoSnapshot.enable = true;
   };
 
+  # ZFS tends to mount filesystems very early during the boot process.
+  # Tell the system that this is not needed for boot.
+  # Disko will implictly set this in the initial installation.
+  fileSystems = {
+    "/var".neededForBoot = false;
+    "/home".neededForBoot = false;
+    "/var/lib/vms".neededForBoot = false;
+    "/var/lib/postgresql" = {
+      neededForBoot = false;
+      options = [
+        # "nofail"
+        "x-systemd.mount-timeout=15s"
+      ];
+    };
+  };
+
   networking = {
     hostName = "nixos";
     hostId = "6b53000e";
