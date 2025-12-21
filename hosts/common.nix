@@ -5,6 +5,7 @@
   ############ FEATURES ############
   features.monitoring.nodeExporter = {
     enable = true;
+    enabledCollectors = [];
   };
 
   ############ SERVICES ############

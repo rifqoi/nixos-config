@@ -43,6 +43,8 @@ in {
     services.prometheus = {
       enable = true;
       port = cfg.port;
+      globalConfig.scrape_interval = "30s";
+      retentionTime = "7d";
 
       scrapeConfigs =
         [

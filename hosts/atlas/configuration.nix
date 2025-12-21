@@ -44,8 +44,17 @@
   };
 
   features.monitoring = {
-    prometheus.enable = true;
-    grafana.enable = true;
+    prometheus = {
+      enable = true;
+      nodeExporterTargets = [
+        "localhost:9100"
+      ];
+    };
+    grafana = {
+      enable = true;
+      domain = "localhost";
+      prometheusUrl = "http://localhost:9090";
+    };
   };
 
   programs = {
