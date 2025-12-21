@@ -12,9 +12,6 @@
   services.tailscale = {
     enable = true;
     package = pkgs.tailscale;
-    settings = {
-      ExitNodeAllowLANAccess = true;
-    };
     # Authenticate this node on first boot
     authKeyFile = config.sops.secrets.tailscale_auth_key.path;
   };
