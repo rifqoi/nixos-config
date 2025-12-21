@@ -9,6 +9,7 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ../common.nix
+    ../../modules/networking/tailscale.nix
     # (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
