@@ -474,7 +474,7 @@
       },
       "yaxes": [
         {
-          "format": "ms",
+          "format": "s",
           "label": "RTT",
           "logBase": 1,
           "min": "0",
