@@ -5,6 +5,24 @@
   ...
 }: let
   cfg = config.features.monitoring.grafana;
+  dashboardsPath = "grafana/dashboards";
+  mergeDashboards = dashboards:
+    lib.attrsets.mergeAttrsList (map (dashboard: let
+        source =
+          if dashboard ? url
+          then
+            assert dashboard.sha256 != null;
+              pkgs.fetchurl {
+                url = "${dashboard.url}";
+                sha256 = "${dashboard.sha256}";
+              }
+          else if dashboard ? file
+          then dashboard.file
+          else throw "Dashboard must have either file or url.";
+      in {
+        "${dashboardsPath}/${dashboard.name}.json".source = source;
+      })
+      dashboards);
 in {
   # ============================================================================
   # MODULE OPTIONS
@@ -29,6 +47,12 @@ in {
       type = lib.types.str;
       default = "localhost";
       description = "Domain name for Grafana";
+    };
+
+    dashboards = lib.mkOption {
+      type = lib.types.listOf lib.types.attrs;
+      default = [];
+      description = "List of dashboards to be added to Grafana";
     };
   };
 
@@ -78,7 +102,7 @@ in {
         dashboards.settings.providers = [
           {
             name = "default";
-            options.path = "/var/lib/grafana/dashboards";
+            options.path = "/etc/grafana/dashboards";
           }
         ];
       };
@@ -94,16 +118,11 @@ in {
     # DASHBOARD SETUP
     # --------------------------------------------------------------------------
 
+    environment.etc = mergeDashboards cfg.dashboards;
     # Fetch the popular Node Exporter Full dashboard
-    environment.etc."grafana/dashboards/node-exporter.json".source = pkgs.fetchurl {
-      url = "https://raw.githubusercontent.com/rfmoz/grafana-dashboards/master/prometheus/node-exporter-full.json";
-      sha256 = "sha256-lOpPVIW4Rih8/5zWnjC3K0kKgK5Jc1vQgCgj4CVkYP4=";
-    };
-
-    # Create directory for dashboards and copy our dashboard
-    systemd.tmpfiles.rules = [
-      "d /var/lib/grafana/dashboards 755 grafana grafana"
-      "C /var/lib/grafana/dashboards/node-exporter.json 644 grafana grafana - /etc/grafana/dashboards/node-exporter.json"
-    ];
+    # environment.etc."grafana/dashboards/node-exporter.json".source = pkgs.fetchurl {
+    #   url = "https://raw.githubusercontent.com/rfmoz/grafana-dashboards/master/prometheus/node-exporter-full.json";
+    #   sha256 = "sha256-lOpPVIW4Rih8/5zWnjC3K0kKgK5Jc1vQgCgj4CVkYP4=";
+    # };
   };
 }
