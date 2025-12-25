@@ -12,6 +12,7 @@
     ../../modules/networking/tailscale.nix
     ../../modules/monitoring/prometheus.nix
     ../../modules/monitoring/grafana.nix
+    ../../modules/monitoring/ping-exporter.nix
     # (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
@@ -48,12 +49,42 @@
       enable = true;
       nodeExporterTargets = [
         "localhost:9100"
+        "localhost:9427"
       ];
     };
     grafana = {
       enable = true;
       domain = "localhost";
       prometheusUrl = "http://localhost:9090";
+      dashboards = [
+        {
+          name = "node-exporter";
+          url = "https://raw.githubusercontent.com/rfmoz/grafana-dashboards/master/prometheus/node-exporter-full.json";
+          sha256 = "sha256-lOpPVIW4Rih8/5zWnjC3K0kKgK5Jc1vQgCgj4CVkYP4=";
+        }
+        {
+          name = "ping-exporter";
+          url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/ping-exporter.json";
+          sha256 = "sha256-EtUvolBtdH0LPNRHHs2p2m6fCR4aei9uzajrT0HIIuM=";
+        }
+      ];
+    };
+
+    pingExporter = {
+      enable = true;
+      settings = {
+        targets = [
+          "8.8.8.8"
+          "1.1.1.1"
+          "id.cloudflare.com"
+          "detik.com"
+          {
+            "google.com" = {
+              asn = 15169;
+            };
+          }
+        ];
+      };
     };
   };
 
