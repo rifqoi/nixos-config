@@ -69,6 +69,18 @@
     ];
   };
 
+  security.sudo.extraRules = [
+    {
+      users = ["rifqoi"];
+      commands = [
+        {
+          command = "ALL"; # Allows all commands
+          options = ["NOPASSWD"]; # Skip password prompt
+        }
+      ];
+    }
+  ];
+
   ############ USERS ############
   time.timeZone = "Asia/Jakarta";
   i18n.defaultLocale = "en_US.UTF-8";
