@@ -21,7 +21,7 @@ in {
       description = "Port for Ping Exporter metrics";
     };
     settings = mkOption {
-      type = pkgs.formats.yaml {};
+      type = types.attrs;
       default = {};
       description = ''
         Configuration for ping_exporter, see
@@ -39,11 +39,11 @@ in {
       enable = true;
       port = cfg.port;
       settings = cfg.settings;
-
-      # --------------------------------------------------------------------------
-      # FIREWALL CONFIGURATION
-      # --------------------------------------------------------------------------
-      networking.firewall.allowedTCPPorts = [cfg.port];
     };
+
+    # --------------------------------------------------------------------------
+    # FIREWALL CONFIGURATION
+    # --------------------------------------------------------------------------
+    networking.firewall.allowedTCPPorts = [cfg.port];
   };
 }
