@@ -15,4 +15,11 @@
     # Authenticate this node on first boot
     authKeyFile = config.sops.secrets.tailscale_auth_key.path;
   };
+
+  networking.firewall = {
+    enable = true;
+    trustedInterfaces = ["tailscale0"];
+    allowedUDPPorts = [53];
+    allowedTCPPorts = [53];
+  };
 }
