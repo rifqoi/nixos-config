@@ -54,17 +54,21 @@ in {
     ###########################
     virtualisation.incus = {
       enable = true;
-      ui.enable = mkIf cfg.enableUI;
+      ui.enable = true;
       package = pkgs.incus;
+      preseed = cfg.preseed;
     };
 
     ###########################
     # NETWORKING
     ###########################
     networking.nftables.enable = true;
-    networking.firewall.incusbr0 = {
-      allowedTCPPorts = cfg.networking.allowedTCPPorts;
-      allowedUDPPorts = cfg.networking.allowedUDPPorts;
-    };
+
+    networking.firewall.allowedTCPPorts = [8443 8999];
+
+    # networking.firewall.incusbr0 = config.virtualisation.incus.preseed.networks {
+    #   allowedTCPPorts = cfg.networking.allowedTCPPorts;
+    #   allowedUDPPorts = cfg.networking.allowedUDPPorts;
+    # };
   };
 }
