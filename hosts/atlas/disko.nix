@@ -41,11 +41,13 @@
         relatime = "on";
         atime = "off";
       };
+      mountpoint = "/";
 
       datasets = {
         root = {
           type = "zfs_fs";
           mountpoint = "/";
+          options.mountpoint = "legacy";
         };
 
         nix = {

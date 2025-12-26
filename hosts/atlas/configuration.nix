@@ -26,6 +26,8 @@
     enable = true;
     efiSupport = true;
     device = "nodev";
+    timeout = 5;
+    timeoutStyle = "menu";
   };
   boot.loader.efi.canTouchEfiVariables = true;
 
