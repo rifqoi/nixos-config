@@ -37,6 +37,8 @@
     autoSnapshot.enable = true;
   };
 
+  services.dbus.enable = true;
+
   networking.hostName = "atlas";
   networking.hostId = "6b53000e";
 
