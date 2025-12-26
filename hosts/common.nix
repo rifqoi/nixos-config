@@ -40,6 +40,8 @@
     };
   };
 
+  system.stateVersion = "25.11";
+
   ############ PACKAGES ############
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
@@ -48,15 +50,19 @@
     git
     tcpdump
     inetutils
+    dnsutils
     host
     curl
     tmux
+    lsof
+    jq
+    unixtools.netstat
   ];
 
   ############ USERS ############
   users.users.rifqoi = {
     isNormalUser = true;
-    extraGroups = ["wheel" "networkmanager" "libvirtd" "docker" "audio" "video" "render" "zfs"];
+    extraGroups = ["wheel" "networkmanager" "libvirtd" "docker" "audio" "video" "render" "zfs" "incus-admin"];
     shell = pkgs.zsh;
     home = "/home/rifqoi";
     hashedPassword = "$y$j9T$gI0IkZGfLkKkywgyQgVbP.$gX9LyM78XxsqwckJdxmeJbFSi1h/eZz2OrDR1zVesj1";
@@ -88,7 +94,4 @@
   ############ NETWORKING ############
   # Open ports in the firewall.
   networking.firewall.allowedTCPPorts = [22];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-
-  system.stateVersion = "25.11";
 }
