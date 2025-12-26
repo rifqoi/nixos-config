@@ -41,7 +41,6 @@
         relatime = "on";
         atime = "off";
       };
-      mountpoint = "/";
 
       datasets = {
         root = {
