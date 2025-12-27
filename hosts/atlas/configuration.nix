@@ -28,6 +28,8 @@
     device = "nodev";
     timeout = 5;
     timeoutStyle = "menu";
+
+    zfsSupport = true;
   };
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -167,7 +169,7 @@
             name = "default";
             driver = "zfs";
             config = {
-              source = "tank/vm";
+              source = "rpool/vm";
             };
           }
         ];
