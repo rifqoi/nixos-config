@@ -89,6 +89,7 @@
         nodeExporterTargets = [
           "localhost:9100"
           "localhost:9427"
+          "100.71.151.87:9100"
         ];
       };
       grafana = {
