@@ -31,13 +31,44 @@
   };
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.supportedFilesystems = ["zfs"];
+  boot.initrd.supportedFilesystems = ["zfs"];
+
+  fileSystems."/" = {
+    device = "rpool/root/ROOT/nixos";
+    fsType = "zfs";
+  };
+
+  fileSystems."/nix" = {
+    device = "rpool/nix";
+    fsType = "zfs";
+  };
+
+  fileSystems."/home" = {
+    device = "rpool/home";
+    fsType = "zfs";
+  };
+
+  fileSystems."/var" = {
+    device = "rpool/var";
+    fsType = "zfs";
+  };
+
+  fileSystems."/var/lib/vms" = {
+    device = "rpool/vm";
+    fsType = "zfs";
+  };
+
+  fileSystems."/var/lib/postgresql" = {
+    device = "rpool/postgresql";
+    fsType = "zfs";
+  };
+
   services.zfs = {
     autoScrub.enable = true;
     autoScrub.interval = "monthly";
     autoSnapshot.enable = true;
   };
-
-  services.dbus.enable = true;
 
   networking.hostName = "atlas";
   networking.hostId = "6b53000e";
@@ -71,7 +102,7 @@
           {
             name = "ping-exporter";
             url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/ping-exporter.json";
-            sha256 = "sha256-EtUvolBtdH0LPNRHHs2p2m6fCR4aei9uzajrT0HIIuM=";
+            sha256 = "sha256-ZmzCak5jAaUA4jKjKcN4mC2SjBsHZXcQf4I7bhoetoY=";
           }
         ];
       };

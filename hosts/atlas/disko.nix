@@ -3,6 +3,7 @@
     disk.main = {
       device = "/dev/nvme0n1";
       type = "disk";
+
       content = {
         type = "gpt";
         partitions = {
@@ -20,15 +21,16 @@
             size = "100%";
             content = {
               type = "zfs";
-              pool = "tank";
+              pool = "rpool";
             };
           };
         };
       };
     };
 
-    zpool.tank = {
+    zpool.rpool = {
       type = "zpool";
+
       options = {
         ashift = "12";
         autotrim = "on";
@@ -45,14 +47,28 @@
       datasets = {
         root = {
           type = "zfs_fs";
+          options.mountpoint = "none";
+        };
+
+        "root/ROOT" = {
+          type = "zfs_fs";
+          options.mountpoint = "none";
+        };
+
+        "root/ROOT/nixos" = {
+          type = "zfs_fs";
           mountpoint = "/";
-          options.mountpoint = "legacy";
+          options = {
+            mountpoint = "legacy";
+            canmount = "noauto";
+          };
         };
 
         nix = {
           type = "zfs_fs";
           mountpoint = "/nix";
           options = {
+            mountpoint = "legacy";
             atime = "off";
           };
         };
@@ -60,17 +76,20 @@
         home = {
           type = "zfs_fs";
           mountpoint = "/home";
+          options.mountpoint = "legacy";
         };
 
         var = {
           type = "zfs_fs";
           mountpoint = "/var";
+          options.mountpoint = "legacy";
         };
 
         vm = {
           type = "zfs_fs";
           mountpoint = "/var/lib/vms";
           options = {
+            mountpoint = "legacy";
             recordsize = "1M";
             atime = "off";
           };
@@ -80,6 +99,7 @@
           type = "zfs_fs";
           mountpoint = "/var/lib/postgresql";
           options = {
+            mountpoint = "legacy";
             recordsize = "16K";
             compression = "zstd";
             atime = "off";
