@@ -19,6 +19,12 @@ in {
       description = "Port for Node Exporter metrics";
     };
 
+    listenAddress = lib.mkOption {
+      type = lib.types.str;
+      default = "0.0.0.0";
+      description = "Address for node exporter metrics";
+    };
+
     enabledCollectors = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [
@@ -47,6 +53,7 @@ in {
       enable = true;
       port = cfg.port;
       enabledCollectors = cfg.enabledCollectors;
+      listenAddress = cfg.listenAddress;
     };
 
     # --------------------------------------------------------------------------

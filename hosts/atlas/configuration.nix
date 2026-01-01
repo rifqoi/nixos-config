@@ -25,7 +25,8 @@
 
   sops.secrets.garage_metrics_token = {
     sopsFile = ../../secrets/secrets.yaml;
-    owner = "root";
+    owner = "prometheus";
+    group = "prometheus";
     mode = "0400";
   };
 
@@ -109,10 +110,24 @@
     monitoring = {
       prometheus = {
         enable = true;
-        nodeExporterTargets = [
-          "localhost:9100"
-          "localhost:9427"
+        nodeExporterTargets = with config.features; [
+          "${monitoring.nodeExporter.listenAddress}:${builtins.toString monitoring.nodeExporter.port}"
+          "${monitoring.pingExporter.listenAddress}:${builtins.toString monitoring.pingExporter.port}"
           "100.71.151.87:9100"
+        ];
+        scrapeConfigs = [
+          {
+            job_name = "garage";
+            static_configs = [
+              {
+                targets = [config.features.storage.garage.settings.admin.api_bind_addr];
+              }
+            ];
+            authorization = {
+              type = "Bearer";
+              credentials_file = config.sops.secrets.garage_metrics_token.path;
+            };
+          }
         ];
       };
       grafana = {
@@ -129,6 +144,11 @@
             name = "ping-exporter";
             url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/ping-exporter.json";
             sha256 = "sha256-ZmzCak5jAaUA4jKjKcN4mC2SjBsHZXcQf4I7bhoetoY=";
+          }
+          {
+            name = "garage-exporter";
+            url = "https://raw.githubusercontent.com/rifqoi/nixos-config/refs/heads/main/grafana/dashboards/garage-exporter.json";
+            sha256 = "sha256-k+lWwFHYwcpMhraDnZwmbMKDZHAGjfcBqJ32n9nXpDQ=";
           }
         ];
       };

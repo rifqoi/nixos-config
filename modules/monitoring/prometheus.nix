@@ -43,6 +43,7 @@ in {
     services.prometheus = {
       enable = true;
       port = cfg.port;
+      checkConfig = "syntax-only";
       globalConfig.scrape_interval = "30s";
       retentionTime = "7d";
 

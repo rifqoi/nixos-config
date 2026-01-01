@@ -20,6 +20,11 @@ in {
       default = 9427;
       description = "Port for Ping Exporter metrics";
     };
+    listenAddress = lib.mkOption {
+      type = lib.types.str;
+      default = "0.0.0.0";
+      description = "Address for node exporter metrics";
+    };
     settings = mkOption {
       type = types.attrs;
       default = {};
@@ -39,6 +44,7 @@ in {
       enable = true;
       port = cfg.port;
       settings = cfg.settings;
+      listenAddress = cfg.listenAddress;
     };
 
     # --------------------------------------------------------------------------
