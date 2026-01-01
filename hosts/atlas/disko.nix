@@ -107,6 +107,29 @@
             primarycache = "all";
           };
         };
+
+        garage = {
+          type = "zfs_fs";
+          #  Bind this dataset to /var/lib/private/garage via a systemd mount unit.
+          #  Because garage use DynamicUser=true and StateDirectory=garage
+          #  the actual persistent data is stored in a private, highly
+          #  restricted directory within /var/lib/private/
+          mountpoint = "/var/lib/private/garage";
+          options = {
+            mountpoint = "legacy";
+            recordsize = "1M";
+            relatime = "off";
+            compression = "zstd";
+            xattr = "sa";
+            acltype = "posixacl";
+            primarycache = "metadata";
+            secondarycache = "none";
+            redundant_metadata = "most";
+            checksum = "blake3";
+            logbias = "throughput";
+            sync = "disabled";
+          };
+        };
       };
     };
   };

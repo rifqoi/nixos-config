@@ -9,16 +9,30 @@
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     ../common.nix
-    ../../modules/networking/tailscale.nix
-    ../../modules/monitoring/prometheus.nix
-    ../../modules/monitoring/grafana.nix
-    ../../modules/monitoring/ping-exporter.nix
-    ../../modules/virtualization/incus.nix
+    ../../modules
     # (modulesPath + "/installer/scan/not-detected.nix")
   ];
 
   sops = {
     defaultSopsFile = ../../secrets/secrets.yaml;
+  };
+
+  sops.secrets.garage_admin_token = {
+    sopsFile = ../../secrets/secrets.yaml;
+    owner = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.garage_metrics_token = {
+    sopsFile = ../../secrets/secrets.yaml;
+    owner = "root";
+    mode = "0400";
+  };
+
+  sops.secrets.garage_rpc_secret = {
+    sopsFile = ../../secrets/secrets.yaml;
+    owner = "root";
+    mode = "0400";
   };
 
   # Use the systemd-boot EFI boot loader.
@@ -63,6 +77,15 @@
 
   fileSystems."/var/lib/postgresql" = {
     device = "rpool/postgresql";
+    fsType = "zfs";
+  };
+
+  #  Bind this dataset to /var/lib/private/garage via a systemd mount unit.
+  #  Because garage use DynamicUser=true and StateDirectory=garage
+  #  the actual persistent data is stored in a private, highly
+  #  restricted directory within /var/lib/private/
+  fileSystems."/var/lib/private/garage" = {
+    device = "rpool/garage";
     fsType = "zfs";
   };
 
@@ -123,6 +146,40 @@
               };
             }
           ];
+        };
+      };
+    };
+
+    storage = {
+      garage = {
+        enable = true;
+        ui.enable = true;
+        package = pkgs.garage_2;
+        data_dir = "/var/lib/garage/data";
+        metadata_dir = "/var/lib/garage/metadata";
+        settings = {
+          replication_factor = 1;
+          consistency_mode = "consistent";
+          db_engine = "sqlite";
+          rpc_bind_addr = "[::]:3901";
+          rpc_public_addr = "127.0.0.1:3901";
+          rpc_secret_file = config.sops.secrets.garage_rpc_secret.path;
+          s3_api = {
+            api_bind_addr = "[::]:3900";
+            s3_region = "garage";
+            root_domain = ".s3.garage";
+          };
+          s3_web = {
+            bind_addr = "[::]:3902";
+            add_host_to_metrics = true;
+            root_domain = ".web.garage";
+          };
+          admin = {
+            api_bind_addr = "127.0.0.1:3903";
+            metrics_token_file = config.sops.secrets.garage_metrics_token.path;
+            metrics_require_token = true;
+            admin_token_file = config.sops.secrets.garage_admin_token.path;
+          };
         };
       };
     };
