@@ -8,6 +8,11 @@
 in {
   options.features.storage.garage = {
     enable = lib.mkEnableOption "Garage storage for media files";
+    package = lib.mkOption {
+      type = lib.types.package;
+      default = pkgs.garage_2;
+      description = "Package for Garage service";
+    };
 
     ui.enable = lib.mkOption {
       type = lib.types.bool;
@@ -34,7 +39,7 @@ in {
     };
 
     settings = lib.mkOption {
-      type = lib.types.attrset;
+      type = lib.types.attrs;
       default = {};
       description = "Additional Garage configuration settings";
     };
@@ -47,24 +52,78 @@ in {
   };
 
   config = lib.mkIf cfg.enable {
-    service.garage = {
+    services.garage = {
       enable = true;
-      log_level = cfg.logLevel;
+      package = cfg.package;
+      logLevel = cfg.logLevel;
       settings = lib.recursiveUpdate cfg.settings {
         data_dir = cfg.data_dir;
         metadata_dir = cfg.metadata_dir;
+
+        allow_world_readable_secrets = lib.mkIf ((cfg.settings ? rpc_secret_file)
+          || (cfg.settings.admin ? metrics_token_file)
+          || (cfg.settings.admin ? admin_token_file))
+        true;
+
+        rpc_secret_file =
+          lib.mkIf (cfg.settings ? rpc_secret_file)
+          "/run/credentials/garage.service/garage_rpc_secret";
+
+        admin.metrics_token_file =
+          lib.mkIf (cfg.settings.admin ? metrics_token_file)
+          "/run/credentials/garage.service/garage_metrics_token";
+
+        admin.admin_token_file =
+          lib.mkIf (cfg.settings.admin ? admin_token_file)
+          "/run/credentials/garage.service/garage_admin_token";
       };
     };
-  };
+    environment.systemPackages = lib.mkIf cfg.ui.enable [pkgs.garage-webui];
 
-  virtualisation = lib.mkIf cfg.ui.enable {
-    oci-containers.containers.garage-ui = {
-      image = "khairul169/garage-webui:latest";
-      ports = ["${toString cfg.ui.port}:3909"];
-      volumes = [
-        "/etc/garage.toml:/etc/garage.toml:ro"
-      ];
-      restartPolicy = "always";
+    # Workaround to load secrets into the Garage service
+    # Using LoadCredential to mount secrets from SOPS
+    systemd.services.garage.serviceConfig.LoadCredential =
+      (lib.optional (cfg.settings ? rpc_secret_file)
+        "garage_rpc_secret:${cfg.settings.rpc_secret_file}")
+      ++ (lib.optional (cfg.settings.admin ? metrics_token_file)
+        "garage_metrics_token:${cfg.settings.admin.metrics_token_file}")
+      ++ (lib.optional (cfg.settings.admin ? admin_token_file)
+        "garage_admin_token:${cfg.settings.admin.admin_token_file}");
+
+    systemd.services.garage-ui = lib.mkIf cfg.ui.enable {
+      description = "Garage Web UI Service";
+      after = ["network.target" "garage.service"];
+      wants = ["garage.service"];
+      serviceConfig = {
+        ExecStart = let
+          startScript = pkgs.writeShellScript "garage-ui-start" ''
+            set -euo pipefail
+
+            # Read admin token from credentials and export it
+            if [ -f "$CREDENTIALS_DIRECTORY/garage_admin_token" ]; then
+              export API_ADMIN_KEY=$(cat "$CREDENTIALS_DIRECTORY/garage_admin_token")
+            else
+              echo "ERROR: garage_admin_token credential not found in $CREDENTIALS_DIRECTORY" >&2
+              exit 1
+            fi
+
+            # Start garage-webui
+            exec ${pkgs.garage-webui}/bin/garage-webui
+          '';
+        in "${startScript}";
+        # Create environment file from credential
+
+        Environment = ["PORT=${toString cfg.ui.port}" "CONFIG_PATH=/etc/garage.toml" "API_BASE_URL=http://127.0.0.1:3903"];
+        LoadCredential =
+          (lib.optional (cfg.settings ? rpc_secret_file)
+            "garage_rpc_secret:${cfg.settings.rpc_secret_file}")
+          ++ (lib.optional (cfg.settings.admin ? metrics_token_file)
+            "garage_metrics_token:${cfg.settings.admin.metrics_token_file}")
+          ++ (lib.optional (cfg.settings.admin ? admin_token_file)
+            "garage_admin_token:${cfg.settings.admin.admin_token_file}");
+        Restart = "on-failure";
+      };
+      wantedBy = ["multi-user.target"];
     };
   };
 }

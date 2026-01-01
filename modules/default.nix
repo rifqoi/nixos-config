@@ -1,7 +1,8 @@
 {...}: {
   imports = [
     ./monitoring
-    ./virtualization/incus.nix
-    ./storage/garage.nix
+    ./virtualization
+    ./storage
+    ./networking
   ];
 }
