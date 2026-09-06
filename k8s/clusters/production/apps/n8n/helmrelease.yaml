@@ -20,6 +20,8 @@ spec:
       retries: 3
       remediateLastFailure: true
   values:
+    # Name all rendered resources "n8n" instead of "n8n-n8n"
+    fullnameOverride: n8n
     # ── Ingress (external-dns -> OpenWRT) ──────────────────────────
     ingress:
       enabled: true
