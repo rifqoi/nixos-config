@@ -48,6 +48,7 @@ spec:
       replicaCount: 1
       # config: {} -> flattened into a ConfigMap as env vars
       config:
+        TZ: Asia/Jakarta # container system clock -> WIB
         db:
           type: postgresdb
           postgresdb:
