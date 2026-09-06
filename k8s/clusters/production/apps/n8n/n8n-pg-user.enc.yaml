@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: n8n-pg-user
+    namespace: n8n
+type: kubernetes.io/basic-auth
+stringData:
+    username: ENC[AES256_GCM,data:8IwL,iv:pu9csmJCU+Pwaus/0m2GFT987AhP6gOqzK5mtcEjXCQ=,tag:d7ATLLILPHuh0orTHAPKaw==,type:str]
+    password: ENC[AES256_GCM,data:IuttmPQWF8ipQUpCMWzlgXAJLZXmRkxqsHoJOU1OMxA=,iv:ZgQXv2vH/+Y1nQooi6wSfiQ5PzrCXKmeMvDMnydK2aY=,tag:dFCiWs2wRqvswNperu55ug==,type:str]
+sops:
+    age:
+        - enc: |
+            -----BEGIN AGE ENCRYPTED FILE-----
+            YWdlLWVuY3J5cHRpb24ub3JnL3YxCi0+IFgyNTUxOSBMMlFtbG5iQmJLK2JsNGNX
+            WnZVU0dnRC9QbVlWL2hzdlljOEFHZ3dNNXpBClVGOXVoRHA3M3lEY0licGpJTE9U
+            OUtoL0NYdmVIaXRxTDN4dmdqbC9ibHcKLS0tIHVMdE9ObW5YQUw2MG1Rd092NDJX
+            TVJiMUVpZURCdS8xbGVpU1VOS3FvWG8KUYyBfa/7LesipJg7Xn1j1GqN5s9s/B3d
+            iGt5lCaca+e2wHYtwTmCAC8VETzbGQcXjDRd2L601gqAJT7mTslyDg==
+            -----END AGE ENCRYPTED FILE-----
+          recipient: age1afpzrwdmpec6e6ke59l5came0du04n7am3ja70krlgw6uvdj8q7shmk9qv
+    encrypted_regex: ^(data|stringData)$
+    lastmodified: "2026-09-06T12:55:41Z"
+    mac: ENC[AES256_GCM,data:hsAU40I48W1lMLcWNc0FC5dY341B7fYYIQmymqMh8V0xX4BpitYi1Q3JpkxMOvkMKNHfs+nyJNdiuZAU6qtD7fg5E8dp72h4h4KZUw1wVW5Afg2YCHWpcIWHRp1ktlM/ds33vq0erpBoc5Ozi19/Kq2RzKP1DTbh1TDpq6cf4rU=,iv:Pxl96XFOGWfNgfnzmtkdEH3z1PrO/NMsGggncXX2DN4=,tag:snYz6EmppvLLbosAxzamSg==,type:str]
+    version: 3.13.3

@@ -1,0 +1,92 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: n8n
+  namespace: flux-system
+spec:
+  interval: 1h
+  targetNamespace: n8n
+  dependsOn:
+    - name: cloudnative-pg
+  chartRef:
+    kind: OCIRepository
+    name: n8n
+    namespace: flux-system
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+      remediateLastFailure: true
+  values:
+    # ── Ingress (external-dns -> OpenWRT) ──────────────────────────
+    ingress:
+      enabled: true
+      className: cilium
+      annotations:
+        external-dns.alpha.kubernetes.io/hostname: n8n.rifqoi.com
+      hosts:
+        - host: n8n.rifqoi.com
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: rifqoi-com-tls
+          hosts:
+            - n8n.rifqoi.com
+    # ── Main n8n app ───────────────────────────────────────────────
+    main:
+      replicaCount: 1
+      # config: {} -> flattened into a ConfigMap as env vars
+      config:
+        db:
+          type: postgresdb
+          postgresdb:
+            host: n8n-pg-rw
+            port: 5432
+            database: n8n
+            user: n8n
+        n8n:
+          host: n8n.rifqoi.com
+          protocol: https
+          editor_base_url: https://n8n.rifqoi.com
+        webhook_url: https://n8n.rifqoi.com
+        generic:
+          timezone: Asia/Jakarta
+      # extraEnv: reference secrets (DB password from CNPG-owned user
+      # secret, encryption key from sops-managed secret)
+      extraEnv:
+        DB_POSTGRESDB_PASSWORD:
+          valueFrom:
+            secretKeyRef:
+              name: n8n-pg-user
+              key: password
+        N8N_ENCRYPTION_KEY:
+          valueFrom:
+            secretKeyRef:
+              name: n8n-secret
+              key: N8N_ENCRYPTION_KEY
+      # Persist /home/node/.n8n on the requested 20Gi PVC
+      persistence:
+        enabled: true
+        type: existing
+        existingClaim: n8n-data
+      service:
+        type: ClusterIP
+        port: 80
+      resources:
+        requests:
+          memory: "512Mi"
+          cpu: "250m"
+        limits:
+          memory: "1Gi"
+          cpu: "1000m"
+    # ── Workers / webhook (single-instance setup, disabled) ────────
+    worker:
+      enabled: false
+    webhook:
+      enabled: false
+    # ── Valkey/Redis (only needed for queue mode) ──────────────────
+    valkey:
+      enabled: false

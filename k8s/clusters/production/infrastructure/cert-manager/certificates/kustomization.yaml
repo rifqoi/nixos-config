@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - ./rifqoi-com-immich.yaml
   - ./rifqoi-com-headlamp.yaml
+  - ./rifqoi-com-n8n.yaml
