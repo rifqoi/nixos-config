@@ -28,6 +28,12 @@ spec:
       className: cilium
       annotations:
         external-dns.alpha.kubernetes.io/hostname: n8n.rifqoi.com
+        # Pin the cilium ingress LB IP. The OpenWRT external-dns webhook
+        # provider has no TXT registry, so external-dns (policy: upsert-only)
+        # can CREATE a record but never UPDATE it. It first published
+        # n8n.rifqoi.com -> .132; pinning the LB IP here keeps the ingress on
+        # that address so it never drifts from the published record.
+        lbipam.cilium.io/ips: "192.168.31.132"
       hosts:
         - host: n8n.rifqoi.com
           paths:
